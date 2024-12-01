@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Excel to MySQL</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                padding: 20px;
+            }
+            form {
+                display: flex;
+                flex-direction: column;
+                max-width: 500px;
+            }
+            input, button, textarea {
+                margin: 10px 0;
+                padding: 10px;
+                font-size: 16px;
+            }
+            button {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #45a049;
+            }
+            textarea {
+                width: 100%;
+                height: 200px;
+                resize: vertical;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Upload Excel to MySQL</h1>
+        <form id="uploadForm">
+            
+            <label for="table">Table Name:</label>
+            <input type="text" id="table" name="table" required>
+            
+            <label for="file">Upload Excel File:</label>
+            <input type="file" id="file" name="file" accept=".xlsx" required>
+            
+            <button type="submit">Upload and Convert</button>
+        </form>
+        
+        <div id="response"></div>
+
+        <!-- Campo para exibir a query SQL gerada -->
+        <h3>Generated SQL Query:</h3>
+        <textarea id="sqlQuery" readonly></textarea>
+
+        <script>
+            document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                const table = document.getElementById('table').value.trim();
+                const file = document.getElementById('file').files[0];
+                const responseDiv = document.getElementById('response');
+                const sqlQueryField = document.getElementById('sqlQuery'); // Novo campo para exibir a query SQL
+                
+                // Verifica se todos os campos estão preenchidos
+                if (!table || !file) {
+                    responseDiv.textContent = 'Error: All fields are required.';
+                    responseDiv.style.color = 'red';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('table', table);
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        responseDiv.textContent = result.message;
+                        responseDiv.style.color = 'green';
+                        
+                        // Exibe a query SQL gerada
+                        sqlQueryField.textContent = result.query;
+                    } else {
+                        responseDiv.textContent = 'Error: ' + result.message;
+                        responseDiv.style.color = 'red';
+                    }
+                } catch (error) {
+                    responseDiv.textContent = 'Error: ' + error.message;
+                    responseDiv.style.color = 'red';
+                }
+            });
+        </script>
+    </body>
+</html>
