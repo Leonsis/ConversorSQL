@@ -1,0 +1,13 @@
+:root{
+    --border-color: #494949;
+    --background-color: #ffffff00;
+}
+
+body{
+    background-color: var(--background-color);
+}
+
+div .card {
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+}
